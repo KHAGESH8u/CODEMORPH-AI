@@ -1,18 +1,52 @@
 SELF_CLOSING_TAGS = ["img", "br", "hr", "input", "meta", "link"]
 
 
+def convert_style_string(style_str):
+    """Converts 'color: red; margin-top: 10px;' to '{{ color: "red", marginTop: "10px" }}'"""
+    if not style_str:
+        return "{}"
+
+    styles = []
+    # Split by semicolon to get individual CSS rules
+    for declaration in style_str.split(";"):
+        if ":" not in declaration:
+            continue
+
+        prop, val = declaration.split(":", 1)
+        prop = prop.strip()
+        val = val.strip()
+
+        # Convert kebab-case (margin-top) to camelCase (marginTop)
+        parts = prop.split("-")
+        camel_prop = parts[0] + "".join(word.capitalize() for word in parts[1:])
+
+        styles.append(f'{camel_prop}: "{val}"')
+
+    return "{{ " + ", ".join(styles) + " }}"
+
+
 def convert_attributes(attrs):
     result = ""
     for key, value in attrs.items():
         if key == "class":
-            value = " ".join(value)
+            # BeautifulSoup parses classes as a list
+            value = " ".join(value) if isinstance(value, list) else value
             key = "className"
 
-        if key == "for":
+        elif key == "for":
             key = "htmlFor"
 
+        elif key == "style":
+            # 🔥 Send the CSS string to our new parser
+            style_obj = convert_style_string(value)
+            result += f" style={style_obj}"
+            continue  # Skip the default string formatting below
+
+        # Default attribute handling
         if isinstance(value, str) and value.isdigit():
             result += f" {key}={{{value}}}"
+        elif isinstance(value, list):
+            result += f' {key}="{" ".join(value)}"'
         else:
             result += f' {key}="{value}"'
 
@@ -35,7 +69,8 @@ def generate_react(node, indent=0, in_pre=False):
 
     tag = node.get("type", "div")
 
-    if tag == "body":
+    # 🔥 FIX: Catch all of BeautifulSoup's invisible wrapper tags
+    if tag in ["body", "[document]", "html"]:
         tag = "div"
 
     # 🔥 Reverted back to <pre> so it catches your index.html CSS
