@@ -1,106 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>CodeMorph AI</title>
-
-  <style>
-    body {
-      background: #0f172a;
-      color: #e2e8f0;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 30px;
-    }
-
-    h1 {
-      color: #38bdf8;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: auto;
-    }
-
-    input {
-      margin: 10px;
-      padding: 10px;
-    }
-
-    button {
-      background: #38bdf8;
-      border: none;
-      padding: 10px 20px;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    button:hover {
-      background: #0ea5e9;
-    }
-
-    pre {
-      background: #020617;
-      padding: 20px;
-      text-align: left;
-      overflow-x: auto;
-      border-radius: 10px;
-      margin-top: 20px;
-      white-space: pre-wrap;
-    }
-
-    .copy-btn {
-      margin-top: 10px;
-      background: #22c55e;
-    }
-  </style>
-</head>
-
-<body>
-
-  <div class="container">
-    <h1>🔥 CodeMorph AI</h1>
-
-    <input type="file" id="file">
-    <br>
-    <button onclick="convert()">Convert</button>
-
-    <h2>Output</h2>
-    <pre id="output"></pre>
-
-    <button class="copy-btn" onclick="copyCode()">Copy Code</button>
-  </div>
-
-  <script>
-    async function convert() {
-      const fileInput = document.getElementById("file");
-      const file = fileInput.files[0];
-
-      if (!file) {
-        alert("Please select a file");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("http://127.0.0.1:8000/convert", {
-        method: "POST",
-        body: formData
-      });
-
-      const data = await res.json();
-
-      document.getElementById("output").textContent = data.react_code;
-    }
-
-    function copyCode() {
-      const code = document.getElementById("output").textContent;
-      navigator.clipboard.writeText(code);
-      alert("Copied!");
-    }
-  </script>
-
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
